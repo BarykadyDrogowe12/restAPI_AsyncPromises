@@ -1,30 +1,42 @@
 "use strict";
-//we are gonna go async
-const getData = () => {
-    fetch('https://api.nbp.pl/api/exchangerates/tables/a/?format=json') //we don't put ; because we need to use .then in the next line
-    .then(response => response.json())
-    .then(result => {
-        console.log(result);
 
-        console.log(result[0].rates); //rates is the table name in our currency json taken from the NBP site
+//  a/?format=json b/  c/
+const baseUrl = 'https://api.nbp.pl/api/exchangerates/tables/';
 
-        result[0].rates.forEach((elem, i) => {
-            //i is from the forEach loop predeclared
-            const tr = document.createElement('tr');
-            
-            tr.innerHTML = `
-            <td>${++i}</td>
-            <td>${elem.currency}</td>
-            <td>${elem.mid}</td>
-            `; //liczba porządkowa l.p to będzie numer indeksu
-            
-            document.querySelector("table tbody").appendChild(tr);
-        });
-    });
-    //fetch uses GET http method on default
-    //works without refreshing the page
+//async, the (table) brackets are not required only for looks
+const getCurrency = async (table) => {
+    //try to run the code and catch any errors
+    try {
+        const response = await fetch(`${baseUrl}${table}`); //concat the link 
+        const data = await response.json();
+        return data;
+    } catch(err) {
+        console.log(`To jest błąd ${err}`);
+    }
 }
 
-const btn = document.querySelector('button');
+//get the table [B] from NBP website
+//type in A B or C to get different currencies <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+getCurrency('b').then(data => {
+    console.log(data);
 
-btn.addEventListener('click', getData);
+    //this is equal to const currencies = data[0];
+    //destrukturyzacja kodu, [nazwa] od razu przypisuje to jako tabelke na index 0 
+    const [currencies] = data;
+
+    //this is an object called rates via {}
+    const {rates} = currencies;
+
+    rates.forEach((elem, i) => {
+        //i is from the forEach loop predeclared
+        const tr = document.createElement('tr');
+            
+        tr.innerHTML = `
+        <td>${++i}</td>
+        <td>${elem.currency}</td>
+        <td>${elem.mid}</td>
+        `; //liczba porządkowa l.p to będzie numer indeksu
+        
+        document.querySelector("table tbody").appendChild(tr);
+    });
+});
