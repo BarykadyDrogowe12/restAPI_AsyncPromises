@@ -11,7 +11,7 @@ const getCurrency = async (table) => {
         const data = await response.json();
         return data;
     } catch(err) {
-        console.log(`To jest błąd ${err}`);
+        console.error;
     }
 }
 
